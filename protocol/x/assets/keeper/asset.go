@@ -25,7 +25,9 @@ func (k Keeper) CreateAsset(
 	marketId uint32,
 	atomicResolution int32,
 ) (types.Asset, error) {
+	// 등록하려는 assetId에 해당하는 asset이 이미 존재한다면
 	if prevAsset, exists := k.GetAsset(ctx, assetId); exists {
+		// asset이 이미 존재한다는 에러 리턴
 		return types.Asset{}, errorsmod.Wrapf(
 			types.ErrAssetIdAlreadyExists,
 			"previous asset = %v",
@@ -33,8 +35,10 @@ func (k Keeper) CreateAsset(
 		)
 	}
 
+	// assetId가 지정된 USDC의 asset id라면
 	if assetId == types.AssetUsdc.Id {
 		// Ensure assetId zero is always USDC. This is a protocol-wide invariant.
+		// 지정한 denom 식별자(ERC20에서의 name과 유사)가 USDC와 동일하다면
 		if denom != types.AssetUsdc.Denom {
 			return types.Asset{}, types.ErrUsdcMustBeAssetZero
 		}
@@ -42,6 +46,7 @@ func (k Keeper) CreateAsset(
 		// Confirm that USDC asset has the expected denom exponent (-6).
 		// This is an important invariant before coin-to-quote-quantum conversion
 		// is correctly implemented. See CLOB-871 for details.
+		// 지정한 단위 exponent(ex. ether, wei)가 USDC의 단위 exponent와 동일하지 않다면 에러
 		if denomExponent != types.AssetUsdc.DenomExponent {
 			return types.Asset{}, errorsmod.Wrapf(
 				types.ErrUnexpectedUsdcDenomExponent,
@@ -53,19 +58,23 @@ func (k Keeper) CreateAsset(
 	}
 
 	// Ensure USDC is not created with a non-zero assetId. This is a protocol-wide invariant.
+	// USDC의 assetId가 아니지만, USDC의 식별자를 사용하고 있다면 에러
 	if assetId != types.AssetUsdc.Id && denom == types.AssetUsdc.Denom {
 		return types.Asset{}, types.ErrUsdcMustBeAssetZero
 	}
 
 	// Ensure the denom is unique versus existing assets.
+	// 현재 존재하는 모든 asset을 가져와서
 	allAssets := k.GetAllAssets(ctx)
 	for _, asset := range allAssets {
+		// 추가하려는 asset의 denom 식별자가 현존하는 asset과 중복되는 경우 error
 		if asset.Denom == denom {
 			return types.Asset{}, errorsmod.Wrap(types.ErrAssetDenomAlreadyExists, denom)
 		}
 	}
 
 	// Create the asset
+	// 위의 예외 사항에 결격사유가 없다면 인수에 맞춰 asset 구조체 생성
 	asset := types.Asset{
 		Id:               assetId,
 		Symbol:           symbol,
@@ -77,10 +86,14 @@ func (k Keeper) CreateAsset(
 	}
 
 	// Validate market
+	// 마켓이 존재한다고 설정했을 경우
 	if hasMarket {
+		// 지정한 marketId의 마켓 가격 가져와서
+		// 실패할 경우 에러 리턴
 		if _, err := k.pricesKeeper.GetMarketPrice(ctx, marketId); err != nil {
 			return asset, err
 		}
+	// 마켓이 없다고 설정했지만 marketId가 지정되어있다면 에러 리턴
 	} else if marketId > 0 {
 		return asset, errorsmod.Wrapf(
 			types.ErrInvalidMarketId,
@@ -90,8 +103,10 @@ func (k Keeper) CreateAsset(
 	}
 
 	// Store the new asset
+	// market에 대한 문제가 해결됐다면 asset 구조체를 keeper에 저장
 	k.setAsset(ctx, asset)
 
+	// 이벤트 생성
 	k.GetIndexerEventManager().AddTxnEvent(
 		ctx,
 		indexerevents.SubtypeAsset,
@@ -117,21 +132,27 @@ func (k Keeper) ModifyAsset(
 	marketId uint32,
 ) (types.Asset, error) {
 	// Get asset
+	// assetId에 해당하는 asset이 존재하는지 체크
 	asset, exists := k.GetAsset(ctx, id)
+	// 없다면 에러
 	if !exists {
 		return asset, errorsmod.Wrap(types.ErrAssetDoesNotExist, lib.UintToString(id))
 	}
 
 	// Validate market
+	// 변경하려는 market의 가격을 가져오고
+	// 가격 가져오기에 실패할 경우 에러 리턴
 	if _, err := k.pricesKeeper.GetMarketPrice(ctx, marketId); err != nil {
 		return asset, err
 	}
 
 	// Modify asset
+	// 문제가 없다면 인수에 넣은대로 수정
 	asset.HasMarket = hasMarket
 	asset.MarketId = marketId
 
 	// Store the modified asset
+	// 수정한 asset 구조체 keeper에 저장
 	k.setAsset(ctx, asset)
 
 	return asset, nil
@@ -141,7 +162,9 @@ func (k Keeper) setAsset(
 	ctx sdk.Context,
 	asset types.Asset,
 ) {
+	// asset 구조체 binary 마샬링
 	b := k.cdc.MustMarshal(&asset)
+	// keeper의 KVStore에 저장
 	assetStore := prefix.NewStore(ctx.KVStore(k.storeKey), []byte(types.AssetKeyPrefix))
 	assetStore.Set(lib.Uint32ToKey(asset.Id), b)
 }
@@ -150,31 +173,41 @@ func (k Keeper) GetAsset(
 	ctx sdk.Context,
 	id uint32,
 ) (val types.Asset, exists bool) {
+	// keeper의 KVStore 가져오기
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte(types.AssetKeyPrefix))
 
+	// KVStore에서 id에 해당하는 binary 마샬링된 asset 구조체 가져오기
 	b := store.Get(lib.Uint32ToKey(id))
 	if b == nil {
 		return val, false
 	}
 
+	// 구조체로 언마샬링
 	k.cdc.MustUnmarshal(b, &val)
+	// 구조체 리턴
 	return val, true
 }
 
 func (k Keeper) GetAllAssets(
 	ctx sdk.Context,
 ) (list []types.Asset) {
+	// keeper의 KVStore 가져오기
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte(types.AssetKeyPrefix))
+	// KVStore용 iterator 가져오기
 	iterator := storetypes.KVStorePrefixIterator(store, []byte{})
 
 	defer iterator.Close()
 
+	// KVStore에 존재하는 모든 binary 상태의 asset 구조체를 돌면서
 	for ; iterator.Valid(); iterator.Next() {
 		var val types.Asset
+		// 구조체로 언마샬링 후
 		k.cdc.MustUnmarshal(iterator.Value(), &val)
+		// 리턴 할 asset 슬라이스에 언마샬링된 구조체 추가
 		list = append(list, val)
 	}
 
+	// 슬라이스 내 구조체들을 assetId 오름차순으로 정렬 
 	sort.Slice(list, func(i, j int) bool {
 		return list[i].Id < list[j].Id
 	})

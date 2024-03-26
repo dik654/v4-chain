@@ -40,6 +40,7 @@ const (
 )
 
 // Default values.
+// 커맨드라인 argument의 기본 값들
 const (
 	DefaultDdAgentHost           = ""
 	DefaultDdTraceAgentPort      = 8126
@@ -53,6 +54,7 @@ const (
 // These flags should be applied to the `start` command of the V4 Cosmos application.
 // E.g. `dydxprotocold start --non-validating-full-node true`.
 func AddFlagsToCmd(cmd *cobra.Command) {
+	// cobra 커맨드라인 argument로 boolean 값인 NonValidatingFullNodeFlag를 선언
 	cmd.Flags().Bool(
 		NonValidatingFullNodeFlag,
 		DefaultNonValidatingFullNode,

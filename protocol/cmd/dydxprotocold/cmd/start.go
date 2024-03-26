@@ -13,17 +13,22 @@ func GetOptionWithCustomStartCmd() *RootCmdOption {
 	option := newRootCmdOption()
 	f := func(cmd *cobra.Command) {
 		// Add app flags.
+		// app/flags/flags.go
 		appflags.AddFlagsToCmd(cmd)
 
 		// Add daemon flags.
+		// daemons/flags/flags.go
 		daemonflags.AddDaemonFlagsToCmd(cmd)
 
 		// Add indexer flags.
+		// indexer/flags.go
 		indexer.AddIndexerFlagsToCmd(cmd)
 
 		// Add clob flags.
+		// x/clob/flags/flags.go
 		clobflags.AddClobFlagsToCmd(cmd)
 	}
+	// cmd/dydxprotocold/cmd/root_option.go
 	option.setCustomizeStartCmd(f)
 	return option
 }

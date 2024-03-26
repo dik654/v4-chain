@@ -26,13 +26,17 @@ const (
 // Note that importing and invoking this function also calls the `init` function in this package,
 // which sets the address prefixes.
 func SetupConfig() {
+	// 기본 설정 구조체 생성
 	config := sdk.GetConfig()
+	// config.sealed = true
+	// config 초기화 이후 변하지 않도록 고정
 	config.Seal()
 }
 
 func init() {
 	// This package does not contain the `app/config` package in its import chain, and therefore needs to call
 	// SetAddressPrefixes() explicitly in order to set the `dydx` address prefixes.
+	// prefix 설정
 	SetAddressPrefixes()
 }
 

@@ -62,21 +62,25 @@ func AddFlagsToCmd(cmd *cobra.Command) {
 			"This disables the pricing daemon and enables the full-node ProcessProposal logic. "+
 			"Validators should _never_ use this mode.",
 	)
+	// cobra 커맨드라인 argument로 string 값인 DdAgentHost를 선언
 	cmd.Flags().String(
 		DdAgentHost,
 		DefaultDdAgentHost,
 		"Sets the address to connect to for the Datadog Agent.",
 	)
+	// cobra 커맨드라인 argument로 uint16 값인 DdTraceAgentPort를 선언
 	cmd.Flags().Uint16(
 		DdTraceAgentPort,
 		DefaultDdTraceAgentPort,
 		"Sets the Datadog Agent port.",
 	)
+	// cobra 커맨드라인 argument로 bool 값인 DdErrorTrackingFormat 선언
 	cmd.Flags().Bool(
 		DdErrorTrackingFormat,
 		DefaultDdErrorTrackingFormat,
 		"Enable formatting of log error tags to datadog error tracking format",
 	)
+	// cobra 커맨드라인 argument로 bool 값인 GrpcStreamingEnabled 선언
 	cmd.Flags().Bool(
 		GrpcStreamingEnabled,
 		DefaultGrpcStreamingEnabled,

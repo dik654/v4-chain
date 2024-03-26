@@ -59,6 +59,7 @@ const (
 
 // NewRootCmd creates a new root command for `dydxprotocold`. It is called once in the main function.
 // TODO(DEC-1097): improve `cmd/` by adding tests, custom app configs, custom init cmd, and etc.
+// dydxprotocold를 실행시키면 나오는 명령어 리스트 생성
 func NewRootCmd(
 	option *RootCmdOption,
 	homeDir string,
@@ -85,15 +86,22 @@ func NewRootCmdWithInterceptors(
 	appConfigInterceptor func(string, *DydxAppConfig) (string, *DydxAppConfig),
 	appInterceptor func(app *dydxapp.App) *dydxapp.App,
 ) *cobra.Command {
+	// viper 인스턴스 생성
 	initAppOptions := viper.New()
+	// 초기화를 위해 tempDir()로 임시 홈 디렉터리 설정
 	initAppOptions.Set(flags.FlagHome, tempDir())
+	// 초기화를 위해 임시 baseApp 인스턴스 생성
+	// 기본 설정, KVStore key, keeper등 설정
 	tempApp := dydxapp.New(
+		// logger와 DB설정
 		log.NewNopLogger(),
 		dbm.NewMemDB(),
 		nil,
 		true,
+		// 임시 디렉터리 설정된 viper 인스턴스
 		initAppOptions,
 	)
+	// 모든 작업 완료 후 baseApp 리소스 정리
 	defer func() {
 		if err := tempApp.Close(); err != nil {
 			panic(err)
@@ -134,9 +142,14 @@ func NewRootCmdWithInterceptors(
 				return err
 			}
 
+			// cmd/dydxprotocold/cmd/config.go의 initAppConfig()에서 기본 앱 설정 가져오기
 			customAppTemplate, customAppConfig := appConfigInterceptor(initAppConfig())
+			// 동일한 파일에서 tendermint 기본설정 가져오기
 			customTMConfig := initTendermintConfig()
 
+			// logger 설정
+			// 앱과 cometBFT 설정 파싱 후
+			// 해당 컨텍스트(serverCtx)를 cmd의 컨텍스트에 적용
 			if err := server.InterceptConfigsPreRunHandler(
 				cmd,
 				customAppTemplate,
@@ -146,6 +159,7 @@ func NewRootCmdWithInterceptors(
 				return err
 			}
 
+			// 적용한 서버 컨텍스트 가져오거나 생성
 			serverCtx := server.GetServerContextFromCmd(cmd)
 
 			// Format logs for error tracking if it is enabled via flags.

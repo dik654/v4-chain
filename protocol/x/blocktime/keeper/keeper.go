@@ -14,7 +14,7 @@ import (
 	"github.com/dydxprotocol/v4-chain/protocol/x/blocktime/types"
 )
 
-// 키퍼에는 바이너리 직렬화 코덱, KVStore키, whitelist
+// 키퍼에는 바이너리 직렬화 코덱, keeper의 KVStore에 접근하기위한 StoreKey, whitelist
 type (
 	Keeper struct {
 		cdc         codec.BinaryCodec

@@ -28,6 +28,8 @@ func GetQueryCmd(queryRoute string) *cobra.Command {
 	return cmd
 }
 
+// down time 관련 설정 파라미터 가져오기
+// 세 쿼리 모두 types/query.pb.go에 작성되어있음
 func CmdQueryDowntimeParams() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "get-downtime-params",
@@ -51,6 +53,7 @@ func CmdQueryDowntimeParams() *cobra.Command {
 	return cmd
 }
 
+// 저장되어있는 모든 down time 정보 가져오기
 func CmdQueryAllDowntimeInfo() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "get-all-downtime-info",
@@ -74,6 +77,7 @@ func CmdQueryAllDowntimeInfo() *cobra.Command {
 	return cmd
 }
 
+// 이전 블록 정보 가져오기
 func CmdQueryPreviousBlockInfo() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "get-previous-block-info",

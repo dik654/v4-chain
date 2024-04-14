@@ -9,6 +9,7 @@ import (
 // InitGenesis initializes the module's state from a provided genesis state.
 func InitGenesis(ctx sdk.Context, k keeper.Keeper, genState types.GenesisState) {
 	for _, entry := range genState.VestEntries {
+		// vesting 모듈에 접근 가능한 모듈 목록 생성
 		if err := k.SetVestEntry(ctx, entry); err != nil {
 			panic(err)
 		}

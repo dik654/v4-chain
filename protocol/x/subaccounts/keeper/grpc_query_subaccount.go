@@ -25,6 +25,7 @@ func (k Keeper) SubaccountAll(
 	store := ctx.KVStore(k.storeKey)
 	subaccountStore := prefix.NewStore(store, []byte(types.SubaccountKeyPrefix))
 
+	// 페이지 리턴
 	pageRes, err := query.Paginate(subaccountStore, req.Pagination, func(key []byte, value []byte) error {
 		var subaccount types.Subaccount
 		if err := k.cdc.Unmarshal(value, &subaccount); err != nil {

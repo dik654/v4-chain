@@ -17,6 +17,7 @@ type msgServer struct {
 
 // NewMsgServerImpl returns an implementation of the MsgServer interface
 // for the provided Keeper.
+// 메세지를 적절한 모듈로 라우팅
 func NewMsgServerImpl(keeper Keeper) types.MsgServer {
 	return &msgServer{Keeper: keeper}
 }
@@ -27,6 +28,7 @@ func (k msgServer) SetVestEntry(
 	goCtx context.Context,
 	msg *types.MsgSetVestEntry,
 ) (*types.MsgSetVestEntryResponse, error) {
+	// 등록된 모듈 주소만 실행가능
 	if !k.HasAuthority(msg.Authority) {
 		return nil, errorsmod.Wrapf(
 			govtypes.ErrInvalidSigner,

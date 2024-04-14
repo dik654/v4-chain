@@ -22,6 +22,7 @@ func NewMsgServerImpl(keeper Keeper) types.MsgServer {
 
 var _ types.MsgServer = msgServer{}
 
+// 모듈 라우팅
 func (k msgServer) UpdateDowntimeParams(
 	goCtx context.Context,
 	msg *types.MsgUpdateDowntimeParams,

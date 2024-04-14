@@ -45,6 +45,7 @@ func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 
 func (k Keeper) InitializeForGenesis(ctx sdk.Context) {}
 
+// downtime은 마지막 블록시간과 현재 블록시간의 차이
 func (k Keeper) GetAllDowntimeInfo(ctx sdk.Context) *types.AllDowntimeInfo {
 	store := ctx.KVStore(k.storeKey)
 	bytes := store.Get([]byte(types.AllDowntimeInfoKey))
@@ -95,16 +96,20 @@ func (k Keeper) SetPreviousBlockInfo(ctx sdk.Context, info *types.BlockInfo) {
 // the previous block and updating the DowntimeInfo for each observed duration.
 func (k Keeper) UpdateAllDowntimeInfo(ctx sdk.Context) {
 	previousBlockInfo := k.GetPreviousBlockInfo(ctx)
+	// 마지막 블록시간과 현재시간의 차이
 	delta := ctx.BlockTime().Sub(previousBlockInfo.Timestamp)
 	// Report block time in milliseconds.
+	// prometheus로 보내기
 	telemetry.SetGauge(
 		float32(delta.Milliseconds()),
 		types.ModuleName,
 		metrics.BlockTimeMs,
 	)
 
+	// 모든 downtime 정보를 가져와서
 	allInfo := k.GetAllDowntimeInfo(ctx)
 
+	// 업데이트 duration 간격을 넘었을 경우 업데이트
 	for _, info := range allInfo.Infos {
 		if delta >= info.Duration {
 			info.BlockInfo = types.BlockInfo{
@@ -131,6 +136,7 @@ func (k Keeper) GetDowntimeInfoFor(ctx sdk.Context, duration time.Duration) type
 			Timestamp: ctx.BlockTime(),
 		},
 	}
+	// Duration이 지난 downtime들만 리턴
 	for _, info := range allInfo.Infos {
 		if duration >= info.Duration {
 			ret = *info

@@ -10,6 +10,7 @@ const TypeMsgSetVestEntry = "set_vest_entry"
 var _ sdk.Msg = &MsgSetVestEntry{}
 
 func NewMsgSetVestEntry(authority string, entry VestEntry) *MsgSetVestEntry {
+	// SetVestEntry용 message 인수 형태
 	return &MsgSetVestEntry{
 		Authority: authority,
 		Entry:     entry,
@@ -29,6 +30,7 @@ func (msg *MsgSetVestEntry) ValidateBasic() error {
 	return msg.Entry.Validate()
 }
 
+// DeleteVestEntry용 message 인수 형태
 func NewMsgDeleteVestEntry(authority string, vesterAccount string) *MsgDeleteVestEntry {
 	return &MsgDeleteVestEntry{
 		Authority:     authority,

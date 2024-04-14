@@ -16,6 +16,7 @@ var (
 func DefaultGenesis() *GenesisState {
 	return &GenesisState{
 		// TODO(CORE-530): in genesis.sh, overwrite start and end times dynamically for testnets.
+		// constructor
 		VestEntries: []VestEntry{
 			{
 				VesterAccount:   CommunityVesterAccountName,

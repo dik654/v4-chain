@@ -7,6 +7,7 @@ import (
 )
 
 // DepositToVault deposits from a subaccount to a vault.
+// subaccount에서 vault로 deposit
 func (k msgServer) DepositToVault(
 	goCtx context.Context,
 	msg *types.MsgDepositToVault,

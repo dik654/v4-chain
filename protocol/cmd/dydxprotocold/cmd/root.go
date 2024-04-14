@@ -163,6 +163,7 @@ func NewRootCmdWithInterceptors(
 			serverCtx := server.GetServerContextFromCmd(cmd)
 
 			// Format logs for error tracking if it is enabled via flags.
+			//
 			if ddErrorTrackingFormatterEnabled :=
 				serverCtx.Viper.Get(protocolflags.DdErrorTrackingFormat); ddErrorTrackingFormatterEnabled != nil {
 				if enabled, err := cast.ToBoolE(ddErrorTrackingFormatterEnabled); err == nil && enabled {

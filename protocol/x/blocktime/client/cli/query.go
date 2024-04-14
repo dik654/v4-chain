@@ -28,6 +28,7 @@ func GetQueryCmd(queryRoute string) *cobra.Command {
 	return cmd
 }
 
+// 아래의 커맨드들은 keeper.go 참조
 func CmdQueryDowntimeParams() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "get-downtime-params",

@@ -3,12 +3,13 @@ package vest_test
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/cosmos/cosmos-sdk/codec/types"
-	"github.com/dydxprotocol/v4-chain/protocol/app/module"
 	"net/http"
 	"net/http/httptest"
 	"reflect"
 	"testing"
+
+	"github.com/cosmos/cosmos-sdk/codec/types"
+	"github.com/dydxprotocol/v4-chain/protocol/app/module"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec"
@@ -45,6 +46,7 @@ func createAppModuleWithKeeper(t *testing.T) (vest.AppModule, *vest_keeper.Keepe
 }
 
 func createAppModuleBasic(t *testing.T) vest.AppModuleBasic {
+	//
 	appCodec := codec.NewProtoCodec(module.InterfaceRegistry)
 
 	appModule := vest.NewAppModuleBasic(appCodec)

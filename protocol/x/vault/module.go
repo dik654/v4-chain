@@ -118,6 +118,7 @@ func (am AppModule) IsOnePerModuleType() {}
 
 // RegisterServices registers a gRPC query service to respond to the module-specific gRPC queries.
 func (am AppModule) RegisterServices(cfg module.Configurator) {
+	// gRPC 서버 인스턴스에 서비스 등록
 	types.RegisterMsgServer(cfg.MsgServer(), keeper.NewMsgServerImpl(am.keeper))
 	types.RegisterQueryServer(cfg.QueryServer(), am.keeper)
 }

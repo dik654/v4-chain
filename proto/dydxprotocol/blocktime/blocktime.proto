@@ -18,6 +18,7 @@ message BlockInfo {
 message AllDowntimeInfo {
   // Stores information about downtime. block_info corresponds to the most
   // recent block at which a downtime occurred.
+  // AllDowntimeInfo 내부에서만 사용되는 정의이므로 message 내부에서 정의
   message DowntimeInfo {
     google.protobuf.Duration duration = 1
         [ (gogoproto.nullable) = false, (gogoproto.stdduration) = true ];
@@ -26,5 +27,6 @@ message AllDowntimeInfo {
 
   // The downtime information for each tracked duration. Sorted by duration,
   // ascending. (i.e. the same order as they appear in DowntimeParams).
+  // repeated는 배열을 의미
   repeated DowntimeInfo infos = 1;
 }
